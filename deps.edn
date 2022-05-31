@@ -22,4 +22,8 @@
   :test
   {:extra-paths ["test"]
    :jvm-opts ["-Dhyperfiddle.rcf.generate-tests=true"]
-   :exec-fn test/run}}}
+   :exec-fn test/run}
+
+  :profile
+  {:jvm-opts ["-XX:StartFlightRecording,dumponexit=true,filename=target/toolsbuild.jfr"
+              "-XX:FlightRecorderOptions=stackdepth=512"]}}}
