@@ -1,7 +1,7 @@
 (ns codes.bauer.LiSP.ch01
   "Lisp in Small Pieces Ch1"
-  (:require [clojure.set :refer [difference]]
-            [hyperfiddle.rcf :refer [tests ! %]]))
+  {:clj-kondo/config '{:linters {:unresolved-symbol {:level :off}}}}
+  (:require [hyperfiddle.rcf :refer [tests]]))
 
 (def literal? (some-fn number? string? char? boolean? vector?))
 
@@ -28,7 +28,7 @@
                localpath)]
     (assoc-in env path val)))
 
-(defn ^:dynamic choose-binding [lexical dynamic]
+(defn ^:dynamic choose-binding [lexical _]
   lexical)
 
 (defn invocation-env [defenv callenv params vals]
@@ -144,7 +144,7 @@
       (lift-predicate eq? = 2)))
 
 (defn a-corner [thing]
-  (if (= baby thing)
+  (when (= baby thing)
     (wrong "Nobody puts baby in a corner.")))
 
 (tests
@@ -199,7 +199,7 @@
        (set! y 0)
        (list (bar 100) (foo 3))))
   (evaluate baby foo-bar-example) := [_ '((1991 0) (3 0))]    ;; lexical binding
-  (binding [choose-binding (fn [lexical dynamic] dynamic)]
+  (binding [choose-binding (fn [_ dynamic] dynamic)]
     (evaluate baby foo-bar-example)) := [_ '((1991 100) (3 0))]
 
   "recursion"
