@@ -24,6 +24,9 @@
    :jvm-opts ["-Dhyperfiddle.rcf.generate-tests=true"]
    :exec-fn test/run}
 
+  :graal
+  {:jvm-opts ["-XX:+UnlockExperimentalVMOptions", "-XX:+EnableJVMCI", "-XX:+UseJVMCICompiler"]}
+
   :profile
   {:jvm-opts ["-XX:StartFlightRecording,dumponexit=true,filename=target/toolsbuild.jfr"
               "-XX:FlightRecorderOptions=stackdepth=512"]}}}
