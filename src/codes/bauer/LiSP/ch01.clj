@@ -54,8 +54,8 @@
     (f env args)
     ;; exercise 1.1 tracing
     #_(let [[env' res :as rv] (f env args)]
-      (println "Called (" f " " args ") => " res)
-      rv)
+        (println "Called (" f " " args ") => " res)
+        rv)
     (wrong "not a function " f)))
 
 (defn evaluate
@@ -148,67 +148,67 @@
     (wrong "Nobody puts baby in a corner.")))
 
 (tests
-  "vars and literals"
-  (evaluate '{a 1} 'a) := [_ 1]
-  (evaluate '{a 1} 4) := [_ 4]
-  (evaluate '{a 1} \c) := [_ \c]
+ "vars and literals"
+ (evaluate '{a 1} 'a) := [_ 1]
+ (evaluate '{a 1} 4) := [_ 4]
+ (evaluate '{a 1} \c) := [_ \c]
 
-  "quoting"
-  (evaluate '{a 1} '(quote a)) := [_ 'a]
+ "quoting"
+ (evaluate '{a 1} '(quote a)) := [_ 'a]
 
-  "set!"
-  (evaluate '{a 1} '(set! b a)) := '[{a 1, b 1} 1]
+ "set!"
+ (evaluate '{a 1} '(set! b a)) := '[{a 1, b 1} 1]
 
-  "side effects and closures"
-  (-> (evaluate '{a 0}
-                '(((lambda (c)
-                    (set! e c)     ;; captures local c
-                    (set! c 4)     ;; updates local c
-                    (lambda (a)    ;; shadows global a
-                      (set! d a)   ;; captures local a
-                      (set! a c)   ;; writes to local a
-                      (set! b a))) ;; captures closed over c value, final return
-                   2)
-                  3))) := ['{a 0, b 4, d 3, e 2, ::locals nil} 4]
+ "side effects and closures"
+ (-> (evaluate '{a 0}
+               '(((lambda (c)
+                          (set! e c)     ;; captures local c
+                          (set! c 4)     ;; updates local c
+                          (lambda (a)    ;; shadows global a
+                                  (set! d a)   ;; captures local a
+                                  (set! a c)   ;; writes to local a
+                                  (set! b a))) ;; captures closed over c value, final return
+                  2)
+                 3))) := ['{a 0, b 4, d 3, e 2, ::locals nil} 4]
 
-  "booleans and branches"
-  (evaluate baby '|f|) := [_ ::false]
-  (evaluate baby '|t|) := [_ true]
-  (-> baby
-      (evaluate '(if (< 0 1)
-                   (set! x 1)
-                   (wrong "question everything")))
-      first
-      (lookup 'x)) := 1
+ "booleans and branches"
+ (evaluate baby '|f|) := [_ ::false]
+ (evaluate baby '|t|) := [_ true]
+ (-> baby
+     (evaluate '(if (< 0 1)
+                  (set! x 1)
+                  (wrong "question everything")))
+     first
+     (lookup 'x)) := 1
 
-  "lists"
-  (evaluate baby '(car (quote (1 2)))) := [_ 1]
-  (evaluate baby '(cdr (quote (1 2)))) := [_ '(2)]
-  (evaluate baby '(cons 0 (quote (1 2)))) := [_ '(0 1 2)]
-  (evaluate baby '(list 1 2 3 4)) := [_ '(1 2 3 4)]
+ "lists"
+ (evaluate baby '(car (quote (1 2)))) := [_ 1]
+ (evaluate baby '(cdr (quote (1 2)))) := [_ '(2)]
+ (evaluate baby '(cons 0 (quote (1 2)))) := [_ '(0 1 2)]
+ (evaluate baby '(list 1 2 3 4)) := [_ '(1 2 3 4)]
 
-  "apply"
-  (evaluate baby '(apply + 2 (list 2))) := [_ 4]
-  (evaluate baby '(apply * (list 5 5))) := [_ 25]
+ "apply"
+ (evaluate baby '(apply + 2 (list 2))) := [_ 4]
+ (evaluate baby '(apply * (list 5 5))) := [_ 25]
 
-  "dynamic binding"
-  (def foo-bar-example ;; taken from section 1.6.1
-    '(begin
-       (set! foo (lambda (x) (list x y)))
-       (set! bar (lambda (y) (foo 1991)))
-       (set! y 0)
-       (list (bar 100) (foo 3))))
-  (evaluate baby foo-bar-example) := [_ '((1991 0) (3 0))]    ;; lexical binding
-  (binding [choose-binding (fn [_ dynamic] dynamic)]
-    (evaluate baby foo-bar-example)) := [_ '((1991 100) (3 0))]
+ "dynamic binding"
+ (def foo-bar-example ;; taken from section 1.6.1
+   '(begin
+     (set! foo (lambda (x) (list x y)))
+     (set! bar (lambda (y) (foo 1991)))
+     (set! y 0)
+     (list (bar 100) (foo 3))))
+ (evaluate baby foo-bar-example) := [_ '((1991 0) (3 0))]    ;; lexical binding
+ (binding [choose-binding (fn [_ dynamic] dynamic)]
+   (evaluate baby foo-bar-example)) := [_ '((1991 100) (3 0))]
 
-  "recursion"
-  (-> baby
-      (evaluate '(begin
-                   (set! fib
-                         (lambda (n)
-                           (if (< n 2)
-                             n
-                             (+ (fib (- n 1)) (fib (- n 2))))))
-                   (fib 8)))
-      second) := 21)
+ "recursion"
+ (-> baby
+     (evaluate '(begin
+                 (set! fib
+                       (lambda (n)
+                               (if (< n 2)
+                                 n
+                                 (+ (fib (- n 1)) (fib (- n 2))))))
+                 (fib 8)))
+     second) := 21)
