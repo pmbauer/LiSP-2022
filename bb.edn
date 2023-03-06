@@ -1,0 +1,4 @@
+{:paths ["src"]
+ :tasks {test:bb {:extra-paths ["test"]
+                  :extra-deps {com.hyperfiddle/rcf {:mvn/version "20221223-025427.pb"}}
+                  :task (exec 'test/run)}}}
