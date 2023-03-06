@@ -28,8 +28,8 @@
   {:jvm-opts ["-XX:SharedArchiveFile=target/classes.jsa"]}
 
   :profile
-  {:jvm-opts ["-XX:StartFlightRecording,dumponexit=true,filename=target/toolsbuild.jfr"
-              "-XX:FlightRecorderOptions=stackdepth=512"]}
+  {:jvm-opts ["-XX:StartFlightRecording:method-profiling=max,settings=startup,dumponexit=true,filename=target/LiSP.jfr"
+              "-XX:FlightRecorderOptions:stackdepth=512"]}
 
   :comp/graal
   {:jvm-opts ["-XX:+UnlockExperimentalVMOptions", "-XX:+EnableJVMCI", "-XX:+UseJVMCICompiler"]}
