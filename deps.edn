@@ -24,6 +24,9 @@
    :jvm-opts ["-Dhyperfiddle.rcf.generate-tests=true"]
    :exec-fn test/run}
 
+  :use-jsa-cache
+  {:jvm-opts ["-XX:SharedArchiveFile=target/classes.jsa"]}
+
   :profile
   {:jvm-opts ["-XX:StartFlightRecording,dumponexit=true,filename=target/toolsbuild.jfr"
               "-XX:FlightRecorderOptions=stackdepth=512"]}

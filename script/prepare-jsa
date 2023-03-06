@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+shared_jsa=${JAVA_HOME}/lib/server/classes.jsa
+target=${1:--X:env/test:use-jsa-cache:test}
+prime_script=${2:-"(require 'hyperfiddle.rcf)"}
+
+echo "Ensure exists: ${shared_jsa}"
+[[ -f "${shared_jsa}" ]] || sudo java -Xshare:dump
+
+echo "Ensure .cpcache exists: ${target}"
+clojure -P $target
+
+echo "Re-write classpath order: ${target}"
+cp_file=$(ls -1rt .cpcache/*.cp | tail -n 1)
+new_cp=$(awk -v RS=: '{print}' < ${cp_file} | sort | paste -sd :)
+echo "${new_cp}" > ${cp_file}
+
+jars_only=$(clojure -Spath "${target}" | tr ':' '\n' | grep ".*\.jar$" | paste -sd ':')
+
+echo "Create jsa for: clj ${target}"
+
+2>/dev/null \
+  mkdir target || true
+1>/dev/null 2>&1 \
+  java -cp "${jars_only}" \
+    -XX:ArchiveClassesAtExit=target/classes.jsa \
+    -Xlog:class+path=info \
+    clojure.main -e "${prime_script}"

@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+echo "deps.edn" | entr script/prepare-jsa &
+git ls-files . --exclude-standard \
+  | entr -d clojure -X:env/test:use-jsa-cache:test
